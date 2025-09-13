@@ -1,0 +1,103 @@
+# Transaction entity to track blockchain transactions
+type Transaction @entity(immutable: true) {
+  id: ID!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+}
+
+# User entity to track individual user data
+type User @entity(immutable: false) {
+  id: ID! # user address as hex string
+  stakedAmount: BigInt!
+  pendingRewards: BigInt!
+  lastStakeTimestamp: BigInt!
+  canWithdraw: Boolean!
+  timeUntilUnlock: BigInt!
+  stakeEvents: [StakeEvent!]! @derivedFrom(field: "user")
+  withdrawEvents: [WithdrawEvent!]! @derivedFrom(field: "user")
+  emergencyWithdrawEvents: [EmergencyWithdrawEvent!]! @derivedFrom(field: "user")
+  rewardClaimEvents: [RewardsClaimedEvent!]! @derivedFrom(field: "user")
+  tokenApprovals: [ApprovalEvent!]! @derivedFrom(field: "owner")
+  tokenTransfers: [TransferEvent!]! @derivedFrom(field: "from")
+  tokenReceives: [TransferEvent!]! @derivedFrom(field: "to")
+  transactionCount: BigInt!
+}
+
+# Protocol entity to track global stats
+type Protocol @entity(immutable: false) {
+  id: ID! # "flux-garden"
+  totalStaked: BigInt!
+  totalRewards: BigInt!
+  currentRewardRate: BigInt!
+  stakingTokenAddress: String!
+  userCount: BigInt!
+  lastUpdatedTimestamp: BigInt!
+}
+
+# Staking Events
+type StakeEvent @entity(immutable: true) {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  timestamp: BigInt!
+  newTotalStaked: BigInt!
+  transaction: Transaction!
+}
+
+type WithdrawEvent @entity(immutable: true) {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  rewardsAccrued: BigInt!
+  timestamp: BigInt!
+  newTotalStaked: BigInt!
+  transaction: Transaction!
+}
+
+type EmergencyWithdrawEvent @entity(immutable: true) {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  penalty: BigInt!
+  timestamp: BigInt!
+  newTotalStaked: BigInt!
+  transaction: Transaction!
+}
+
+type RewardsClaimedEvent @entity(immutable: true) {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  timestamp: BigInt!
+  newPendingRewards: BigInt
+  totalStaked: BigInt
+  transaction: Transaction!
+}
+
+type RewardRateUpdateEvent @entity(immutable: true) {
+  id: ID!
+  oldRewardRate: BigInt!
+  newRewardRate: BigInt!
+  totalStaked: BigInt
+  timestamp: BigInt!
+  transaction: Transaction!
+}
+
+# Token Events
+type ApprovalEvent @entity(immutable: true) {
+  id: ID!
+  owner: User!
+  spender: User!
+  value: BigInt!
+  timestamp: BigInt!
+  transaction: Transaction!
+}
+
+type TransferEvent @entity(immutable: true) {
+  id: ID!
+  from: User!
+  to: User!
+  value: BigInt!
+  timestamp: BigInt!
+  transaction: Transaction!
+}

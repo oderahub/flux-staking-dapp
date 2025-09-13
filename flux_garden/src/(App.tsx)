@@ -1,0 +1,380 @@
+'use client'
+
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+
+// Mock data for demonstration
+const mockUserStakes = [
+  { id: 1, amount: '1,250.00', unlockTime: '2024-03-15', pendingRewards: '45.67' },
+  { id: 2, amount: '850.50', unlockTime: '2024-04-22', pendingRewards: '28.91' },
+  { id: 3, amount: '2,100.75', unlockTime: '2024-05-10', pendingRewards: '89.34' }
+]
+
+const mockProtocolStats = {
+  apr: '24.5%',
+  totalStaked: '12,847,392.50',
+  rewardRate: '0.0045',
+  totalRewards: '156.92'
+}
+
+export default function FluxGarden() {
+  const [isConnected, setIsConnected] = useState(false)
+  const [stakeAmount, setStakeAmount] = useState('')
+  const [pendingRewards, setPendingRewards] = useState(mockProtocolStats.totalRewards)
+  const [isHovering, setIsHovering] = useState('')
+
+  // Grain texture overlay component
+  const GrainOverlay = () => (
+    <div
+      className="fixed inset-0 pointer-events-none opacity-20 mix-blend-overlay"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+      }}
+    />
+  )
+
+  // Glowing divider component
+  const GlowDivider = ({ color = 'from-green-400 to-purple-500' }) => (
+    <motion.div
+      className="w-full h-px my-16 relative"
+      initial={{ opacity: 0, scaleX: 0 }}
+      whileInView={{ opacity: 1, scaleX: 1 }}
+      transition={{ duration: 1.2, ease: 'easeOut' }}
+    >
+      <div className={`absolute inset-0 bg-gradient-to-r ${color} blur-sm`} />
+      <div className={`absolute inset-0 bg-gradient-to-r ${color}`} />
+    </motion.div>
+  )
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white relative overflow-x-hidden">
+      <GrainOverlay />
+
+      {/* Animated background elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        <motion.div
+          className="absolute top-20 left-10 w-32 h-32 bg-green-400/10 rounded-full blur-xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3]
+          }}
+          transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
+        />
+        <motion.div
+          className="absolute top-60 right-20 w-24 h-24 bg-purple-500/10 rounded-full blur-xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.4, 0.7, 0.4]
+          }}
+          transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 1 }}
+        />
+        <motion.div
+          className="absolute bottom-40 left-1/3 w-40 h-40 bg-orange-400/10 rounded-full blur-xl"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.5, 0.2]
+          }}
+          transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, delay: 2 }}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-8">
+        {/* Header */}
+        <motion.header
+          className="flex justify-between items-start mb-20"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <div>
+            <motion.h1
+              className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-green-400 via-purple-500 to-orange-400 bg-clip-text text-transparent"
+              style={{
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                letterSpacing: '-0.02em',
+                lineHeight: '0.9'
+              }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              Flux
+              <br />
+              <span className="ml-8 text-5xl md:text-7xl">Garden</span>
+            </motion.h1>
+            <motion.p
+              className="text-gray-400 mt-4 text-lg italic ml-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              where digital seeds grow into rewards
+            </motion.p>
+          </div>
+
+          <motion.div
+            whileHover={{ scale: 1.05, rotate: isConnected ? 0 : 2 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <ConnectButton />
+          </motion.div>
+        </motion.header>
+
+        {/* Stake Form */}
+        <motion.section
+          className="mb-20"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-3xl font-bold mb-8 text-green-400">Plant Your Seeds</h2>
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-3xl p-8 border border-gray-700/50 relative overflow-hidden">
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-green-400/5 to-purple-500/5"
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
+            />
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row gap-4 items-end">
+                <div className="flex-1">
+                  <label className="block text-sm text-gray-400 mb-2">Amount to Stake</label>
+                  <input
+                    type="text"
+                    value={stakeAmount}
+                    onChange={(e) => setStakeAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full bg-gray-900/80 border border-gray-600 rounded-xl px-4 py-3 text-xl focus:border-green-400 focus:outline-none transition-colors"
+                  />
+                </div>
+                <motion.button
+                  className="px-8 py-3 bg-gradient-to-r from-green-400 to-green-500 text-gray-900 font-bold rounded-xl shadow-lg shadow-green-400/25 relative overflow-hidden"
+                  whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(74, 222, 128, 0.4)' }}
+                  whileTap={{ scale: 0.95 }}
+                  onHoverStart={() => setIsHovering('stake')}
+                  onHoverEnd={() => setIsHovering('')}
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    initial={{ x: '-100%' }}
+                    animate={{ x: isHovering === 'stake' ? '100%' : '-100%' }}
+                    transition={{ duration: 0.6 }}
+                  />
+                  <span className="relative z-10">🌱 Plant Seed</span>
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        <GlowDivider color="from-green-400 to-purple-500" />
+
+        {/* Withdraw Section */}
+        <motion.section
+          className="mb-20"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-3xl font-bold mb-8 text-purple-400">Harvest & Escape</h2>
+          <div className="flex flex-col md:flex-row gap-6">
+            <motion.button
+              className="flex-1 p-6 bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 rounded-2xl text-purple-300 hover:text-purple-200 transition-all duration-300 relative overflow-hidden group"
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-purple-500/10"
+                initial={{ scale: 0 }}
+                whileHover={{ scale: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+              <div className="relative z-10">
+                <div className="text-2xl mb-2">🌿</div>
+                <div className="font-bold">Normal Withdraw</div>
+                <div className="text-sm opacity-75">Harvest mature stakes</div>
+              </div>
+            </motion.button>
+
+            <motion.button
+              className="flex-1 p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-2xl text-orange-300 hover:text-orange-200 transition-all duration-300 relative overflow-hidden group"
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-orange-500/10"
+                initial={{ scale: 0 }}
+                whileHover={{ scale: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+              <div className="relative z-10">
+                <div className="text-2xl mb-2">🔥</div>
+                <div className="font-bold">Emergency Escape</div>
+                <div className="text-sm opacity-75">Burn roots, lose rewards</div>
+              </div>
+            </motion.button>
+          </div>
+        </motion.section>
+
+        <GlowDivider color="from-purple-400 to-orange-500" />
+
+        {/* Rewards Section */}
+        <motion.section
+          className="mb-20 text-center"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-3xl font-bold mb-8 text-orange-400">Glowing Harvest</h2>
+          <div className="relative inline-block">
+            <motion.div
+              className="w-40 h-40 mx-auto mb-8 rounded-full bg-gradient-to-br from-orange-400 to-yellow-500 flex items-center justify-center text-gray-900 font-bold text-2xl relative overflow-hidden"
+              animate={{
+                boxShadow: [
+                  '0 0 20px rgba(251, 146, 60, 0.5)',
+                  '0 0 40px rgba(251, 146, 60, 0.8)',
+                  '0 0 20px rgba(251, 146, 60, 0.5)'
+                ]
+              }}
+              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white/20"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
+              />
+              <span className="relative z-10">{pendingRewards}</span>
+            </motion.div>
+
+            <motion.button
+              className="px-8 py-4 bg-gradient-to-r from-orange-400 to-yellow-500 text-gray-900 font-bold rounded-2xl shadow-lg shadow-orange-400/25 relative overflow-hidden"
+              whileHover={{
+                scale: 1.05,
+                boxShadow: '0 0 30px rgba(251, 146, 60, 0.6)',
+                y: -2
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white/20"
+                animate={{ x: ['-100%', '100%'] }}
+                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
+              />
+              <span className="relative z-10">✨ Claim Rewards</span>
+            </motion.button>
+          </div>
+        </motion.section>
+
+        <GlowDivider color="from-orange-400 to-green-500" />
+
+        {/* User Stakes */}
+        <motion.section
+          className="mb-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-3xl font-bold mb-8 text-green-400">Your Growing Vines</h2>
+          <div className="space-y-4">
+            <AnimatePresence>
+              {mockUserStakes.map((stake, index) => (
+                <motion.div
+                  key={stake.id}
+                  className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 relative overflow-hidden"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02, x: 10 }}
+                >
+                  <motion.div
+                    className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-green-400 to-purple-500"
+                    initial={{ scaleY: 0 }}
+                    animate={{ scaleY: 1 }}
+                    transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+                  />
+                  <div className="ml-4 flex justify-between items-center">
+                    <div>
+                      <div className="text-xl font-bold text-green-400">{stake.amount} FLUX</div>
+                      <div className="text-sm text-gray-400">Unlocks: {stake.unlockTime}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-orange-400">
+                        +{stake.pendingRewards}
+                      </div>
+                      <div className="text-sm text-gray-400">pending</div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </motion.section>
+
+        <GlowDivider color="from-green-400 via-purple-500 to-orange-400" />
+
+        {/* Protocol Stats */}
+        <motion.section
+          className="mb-20"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-green-400 to-orange-400 bg-clip-text text-transparent">
+            The Glowing Soil
+          </h2>
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-3xl p-8 border border-gray-700/50 relative overflow-hidden">
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-green-400/5 via-purple-500/5 to-orange-400/5"
+              animate={{
+                background: [
+                  'linear-gradient(135deg, rgba(74, 222, 128, 0.05), rgba(168, 85, 247, 0.05), rgba(251, 146, 60, 0.05))',
+                  'linear-gradient(135deg, rgba(251, 146, 60, 0.05), rgba(74, 222, 128, 0.05), rgba(168, 85, 247, 0.05))',
+                  'linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(251, 146, 60, 0.05), rgba(74, 222, 128, 0.05))'
+                ]
+              }}
+              transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY }}
+            />
+            <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-400 mb-2">
+                  {mockProtocolStats.apr}
+                </div>
+                <div className="text-sm text-gray-400">APR</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-400 mb-2">
+                  {mockProtocolStats.totalStaked}
+                </div>
+                <div className="text-sm text-gray-400">Total Staked</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-orange-400 mb-2">
+                  {mockProtocolStats.rewardRate}
+                </div>
+                <div className="text-sm text-gray-400">Reward Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-400 mb-2">∞</div>
+                <div className="text-sm text-gray-400">Magic Level</div>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Footer */}
+        <motion.footer
+          className="text-center py-8 text-gray-500"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <motion.p
+            whileHover={{ scale: 1.05, color: '#10b981' }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            Built with 💚 for the decentralized garden
+          </motion.p>
+        </motion.footer>
+      </div>
+    </div>
+  )
+}
