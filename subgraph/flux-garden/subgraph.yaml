@@ -16,11 +16,13 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - Stake
-        - Withdraw
-        - EmergencyWithdraw
-        - RewardsClaimed
-        - RewardRateUpdate
+        - User
+        - Protocol
+        - StakeEvent
+        - WithdrawEvent
+        - EmergencyWithdrawEvent
+        - RewardsClaimedEvent
+        - RewardRateUpdateEvent
         - Transaction
       abis:
         - name: StakingContract
@@ -50,10 +52,10 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - Token
-        - Account
-        - Approval
-          - Transfer
+        - User
+        - ApprovalEvent
+        - TransferEvent
+        - Transaction
       abis:
         - name: MockToken
           file: ./abis/MockToken.json
